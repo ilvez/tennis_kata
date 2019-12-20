@@ -16,43 +16,51 @@ class TennisGame
   end
 
   def score
-    result = ''
-    temp_score = 0
-
     if @p1_points == @p2_points
-      result = {
-        0 => 'Love-All',
-        1 => 'Fifteen-All',
-        2 => 'Thirty-All'
-      }.fetch(@p1_points, 'Deuce')
+      resolve_draw
     elsif @p1_points >= 4 || @p2_points >= 4
-      minus_result = @p1_points - @p2_points
-
-      if minus_result == 1
-        result = 'Advantage player1'
-      elsif minus_result == -1
-        result = 'Advantage player2'
-      elsif minus_result >= 2
-        result = 'Win for player1'
-      else
-        result = 'Win for player2'
-      end
+      resolve_advantage_or_win
     else
-      (1...3).each do |i|
-        if i == 1
-          temp_score = @p1_points
-        else
-          result += '-'
-          temp_score = @p2_points
-        end
-        result += {
-          0 => 'Love',
-          1 => 'Fifteen',
-          2 => 'Thirty',
-          3 => 'Forty'
-        }[temp_score]
-      end
+      "#{points_to_score(@p1_points)}-#{points_to_score(@p2_points)}"
     end
-    result
+  end
+
+  private
+
+  def resolve_draw
+    {
+      0 => 'Love-All',
+      1 => 'Fifteen-All',
+      2 => 'Thirty-All'
+    }.fetch(@p1_points, 'Deuce')
+  end
+
+  def points_to_score(points)
+    {
+      0 => 'Love',
+      1 => 'Fifteen',
+      2 => 'Thirty',
+      3 => 'Forty'
+    }[points]
+  end
+
+  def resolve_advantage_or_win
+    if point_difference.abs == 1
+      "Advantage #{advantage_player}"
+    else
+      "Win for #{advantage_player}"
+    end
+  end
+
+  def advantage_player
+    if point_difference.positive?
+      @player1_name
+    else
+      @player2_name
+    end
+  end
+
+  def point_difference
+    @p1_points - @p2_points
   end
 end
