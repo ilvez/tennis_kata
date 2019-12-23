@@ -23,8 +23,8 @@ class TennisGame
 
   SCORE_CALCULATIONS = {
     start: -> { "#{points_to_score(@p1_points)}-#{points_to_score(@p2_points)}" },
-    deuce: -> { 'Deuce' },
     draw: -> { "#{points_to_score(@p1_points)}-All" },
+    deuce: -> { 'Deuce' },
     advantage: -> { "Advantage #{advantage_player}" },
     win: -> { "Win for #{advantage_player}" }
   }.freeze
@@ -43,12 +43,12 @@ class TennisGame
     end
   end
 
-  def few_points?
-    @p1_points <= 2
-  end
-
   def points_equal?
     @p1_points == @p2_points
+  end
+
+  def few_points?
+    @p1_points <= 2
   end
 
   def match_close_end?
