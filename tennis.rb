@@ -30,17 +30,29 @@ class TennisGame
   }.freeze
 
   def game_state
-    if (@p1_points == @p2_points) && @p1_points > 2
-      :deuce
-    elsif @p1_points == @p2_points && @p1_points <= 2
+    if points_equal? && few_points?
       :draw
-    elsif (@p1_points >= 4 || @p2_points >= 4) && point_difference.abs == 1
+    elsif points_equal? && !few_points?
+      :deuce
+    elsif match_close_end? && point_difference.abs == 1
       :advantage
-    elsif (@p1_points >= 4 || @p2_points >= 4) && point_difference.abs > 1
+    elsif match_close_end? && point_difference.abs > 1
       :win
     else
       :start
     end
+  end
+
+  def few_points?
+    @p1_points <= 2
+  end
+
+  def points_equal?
+    @p1_points == @p2_points
+  end
+
+  def match_close_end?
+    @p1_points >= 4 || @p2_points >= 4
   end
 
   def advantage_player
