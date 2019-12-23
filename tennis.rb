@@ -16,39 +16,30 @@ class TennisGame
   end
 
   def score
-    if @p1_points == @p2_points
-      resolve_draw
-    elsif @p1_points >= 4 || @p2_points >= 4
-      resolve_advantage_or_win
-    else
-      "#{points_to_score(@p1_points)}-#{points_to_score(@p2_points)}"
-    end
+    instance_exec(&SCORE_CALCULATIONS[game_state])
   end
 
   private
 
-  def resolve_draw
-    {
-      0 => 'Love-All',
-      1 => 'Fifteen-All',
-      2 => 'Thirty-All'
-    }.fetch(@p1_points, 'Deuce')
-  end
+  SCORE_CALCULATIONS = {
+    start: -> { "#{points_to_score(@p1_points)}-#{points_to_score(@p2_points)}" },
+    deuce: -> { 'Deuce' },
+    draw: -> { "#{points_to_score(@p1_points)}-All" },
+    advantage: -> { "Advantage #{advantage_player}" },
+    win: -> { "Win for #{advantage_player}" }
+  }.freeze
 
-  def points_to_score(points)
-    {
-      0 => 'Love',
-      1 => 'Fifteen',
-      2 => 'Thirty',
-      3 => 'Forty'
-    }[points]
-  end
-
-  def resolve_advantage_or_win
-    if point_difference.abs == 1
-      "Advantage #{advantage_player}"
+  def game_state
+    if (@p1_points == @p2_points) && @p1_points > 2
+      :deuce
+    elsif @p1_points == @p2_points && @p1_points <= 2
+      :draw
+    elsif (@p1_points >= 4 || @p2_points >= 4) && point_difference.abs == 1
+      :advantage
+    elsif (@p1_points >= 4 || @p2_points >= 4) && point_difference.abs > 1
+      :win
     else
-      "Win for #{advantage_player}"
+      :start
     end
   end
 
@@ -58,6 +49,15 @@ class TennisGame
     else
       @player2_name
     end
+  end
+
+  def points_to_score(points)
+    {
+      0 => 'Love',
+      1 => 'Fifteen',
+      2 => 'Thirty',
+      3 => 'Forty'
+    }[points]
   end
 
   def point_difference
